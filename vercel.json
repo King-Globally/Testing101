@@ -1,0 +1,13 @@
+{
+  "buildCommand": "prisma generate && prisma db push --accept-data-loss && next build",
+  "framework": "nextjs",
+  "regions": [
+    "iad1"
+  ],
+  "env": {
+    "DATABASE_URL": "file:./db/custom.db",
+    "NEXTAUTH_SECRET": "@nextauth-secret",
+    "NEXTAUTH_URL": "@nextauth-url",
+    "NEXTAUTH_TRUST_HOST": "true"
+  }
+}

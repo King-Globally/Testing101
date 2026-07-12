@@ -1,0 +1,133 @@
+// Prisma schema — Jamiatul Ulama Johannesburg mini-database
+// SQLite (file-based) for articles, fatwas, downloads, calendar, prayer times.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Article {
+  id        Int     @id @default(autoincrement())
+  title     String
+  cat       String
+  catLabel  String
+  date      String
+  excerpt   String
+  body      String
+  createdAt DateTime @default(now())
+}
+
+model Fatwa {
+  id     Int    @id @default(autoincrement())
+  q      String
+  cat    String
+  answer String
+  source String
+  createdAt DateTime @default(now())
+}
+
+model Download {
+  id       Int    @id @default(autoincrement())
+  title    String
+  cat      String
+  catLabel String
+  meta     String
+  desc     String
+  filename String
+  createdAt DateTime @default(now())
+}
+
+model Announcement {
+  id    Int    @id @default(autoincrement())
+  title String
+  body  String
+  date  String
+  kind  String // "urgent" | "info" | "ramadan" | "moon"
+  createdAt DateTime @default(now())
+}
+
+model Hadith {
+  id     Int    @id @default(autoincrement())
+  text   String
+  source String
+}
+
+model Dyk {
+  id     Int    @id @default(autoincrement())
+  text   String
+}
+
+model PrayerSchedule {
+  id    Int    @id @default(autoincrement())
+  name  String  // Fajr | Sunrise | Dhuhr | Asr | Maghrib | Isha
+  start String  // HH:MM (azaan)
+  end   String  // HH:MM (jama'ah)
+  order Int
+}
+
+model HijriMonth {
+  // 12 Islamic months — preserved metadata for the calendar engine
+  id          Int    @id @default(autoincrement())
+  number      Int    // 1..12
+  nameLatin   String
+  nameArabic  String
+  note        String // sunnah fasts, Āshūrā, Ramaḍān etc.
+}
+
+// ─── Authentication & Audit ────────────────────────────────────────────────
+// Single-editor model: the website supports one Admin/Editor account whose
+// credentials are stored as a bcrypt hash. The account is created via the
+// seed script (scripts/seed-admin.ts) and the password can be rotated via
+// scripts/reset-admin-password.ts. No signup endpoint exists — the only way
+// to create an account is on the server itself, with filesystem access.
+
+model User {
+  id            String   @id @default(cuid())
+  username      String   @unique
+  passwordHash  String   // bcrypt, 12 rounds
+  email         String?  // admin email for verification & security alerts
+  role          String   @default("editor") // "editor" (sole admin)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  auditLogs     AuditLog[]
+}
+
+model AuditLog {
+  // Every mutation performed by an authenticated editor is recorded here.
+  // Read operations are not logged (to avoid noise), but every create /
+  // update / delete carries an entry with the action, target entity,
+  // before/after payload (where applicable), and timestamp.
+  id          Int      @id @default(autoincrement())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action      String   // "create" | "update" | "delete" | "login" | "logout" | "login_failed"
+  entity      String   // "article" | "fatwa" | "download" | "announcement" | "hadith" | "dyk" | "prayer" | "auth"
+  entityId    String?  // id of the affected record (nullable for auth events)
+  before      String?  // JSON snapshot before the change (for update/delete)
+  after       String?  // JSON snapshot after the change (for create/update)
+  ip          String?  // requester IP (best-effort, from x-forwarded-for)
+  userAgent   String?  // requester UA
+  createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([entity, createdAt])
+}
+
+model LoginAttempt {
+  // Rate-limiting: every login attempt (success or failure) is recorded
+  // with the requester IP. The auth API checks the last 15 minutes of
+  // failed attempts from that IP and rejects if > 5.
+  id          Int      @id @default(autoincrement())
+  ip          String
+  username    String
+  success     Boolean
+  createdAt   DateTime @default(now())
+
+  @@index([ip, createdAt])
+  @@index([createdAt])
+}
+
