@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireEditor } from "@/lib/auth";
 import { audit, snapshot } from "@/lib/audit";
+import { detectAndAnnounceChange } from "@/lib/update-detector";
 import { z } from "zod";
 
 /**
@@ -45,6 +46,15 @@ export async function POST(req: NextRequest) {
   }
 
   const created = await db.article.create({ data: parsed.data });
+
+  // Auto-announce new articles to the public
+  await detectAndAnnounceChange({
+    entityType: "article",
+    action: "create",
+    entityId: created.id,
+    entityTitle: created.title,
+  });
+
   await audit({
     session,
     action: "create",

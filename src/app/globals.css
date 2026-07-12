@@ -143,43 +143,35 @@
   ::selection { background: rgba(46,110,106,.2); color: var(--ink-navy); }
 }
 
-/* ─── Peacock-feather-pen custom cursor (intelligently adaptive) ─── */
-/* Only hide the native cursor when the peacock-active class is present */
-/* This class is added dynamically by the component ONLY when a fine pointer + hover is detected */
-html.peacock-active * {
-  cursor: none !important;
-}
-.peacock-cursor {
-  position: fixed;
-  top: 0; left: 0;
-  width: 28px; height: 28px;
-  pointer-events: none;
-  z-index: 99998;
-  transform: translate(-50%, -50%);
-  will-change: transform, opacity;
-  transition: width .18s ease, height .18s ease, filter .18s ease, opacity .3s ease;
-  opacity: 0;
-}
-.peacock-cursor svg { width: 100%; height: 100%; display:block; filter: drop-shadow(0 1px 1px rgba(11,61,46,.35)); }
-.peacock-cursor.over-link {
-  width: 44px; height: 44px;
-  filter: drop-shadow(0 0 8px rgba(184,146,30,.55));
-}
-.peacock-ink-trail {
-  position: fixed;
-  top:0; left:0;
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(11,61,46,.45), rgba(184,146,30,.15) 50%, transparent 70%);
-  pointer-events: none;
-  z-index: 99997;
-  transform: translate(-50%, -50%);
-  will-change: transform, opacity;
-  animation: peacock-trail-fade .5s ease forwards;
-}
-@keyframes peacock-trail-fade {
-  0% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
-  100% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+/* ─── Peacock-feather-pen custom cursor ─── */
+@media (pointer: fine) {
+  * { cursor: none !important; }
+  .peacock-cursor {
+    position: fixed;
+    top: 0; left: 0;
+    width: 28px; height: 28px;
+    pointer-events: none;
+    z-index: 99998;
+    transform: translate(-50%, -50%);
+    will-change: transform, width, height;
+    transition: width .18s ease, height .18s ease, filter .18s ease;
+  }
+  .peacock-cursor svg { width: 100%; height: 100%; display:block; filter: drop-shadow(0 1px 1px rgba(11,61,46,.35)); }
+  .peacock-cursor.over-link {
+    width: 44px; height: 44px;
+    filter: drop-shadow(0 0 8px rgba(184,146,30,.55));
+  }
+  .peacock-ink-trail {
+    position: fixed;
+    top:0; left:0;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(11,61,46,.45), rgba(184,146,30,.15) 50%, transparent 70%);
+    pointer-events: none;
+    z-index: 99997;
+    transform: translate(-50%, -50%);
+    will-change: transform, opacity;
+  }
 }
 
 /* ─── Geometric Islamic pattern (for hero / dividers) ─── */
@@ -989,12 +981,7 @@ html, body {
   .masthead-row { gap: 6px !important; }
 }
 
-@media (max-width: 767px) {
-}
-
 /* ─── Islamic Geometric Theme (Task 4) ─── */
-
-/* Decorative section divider — Islamic geometric motif */
 .islamic-divider {
   display: flex; align-items: center; justify-content: center;
   margin: 28px 0; gap: 12px;
@@ -1004,40 +991,16 @@ html, body {
   background: linear-gradient(90deg, transparent, var(--gold) 40%, var(--gold) 60%, transparent);
   max-width: 200px;
 }
-.islamic-divider-icon {
-  width: 24px; height: 24px; flex-shrink: 0;
-  opacity: 0.5;
-}
-
-/* Arch/miḥrāb-style framing for Hadith and DYK cards */
 .arch-frame {
   position: relative;
   border-radius: 8px 8px 4px 4px;
   overflow: hidden;
-}
-.arch-frame::before {
-  content: ""; position: absolute; top: 0; left: 50%;
-  transform: translateX(-50%);
-  width: 60%; height: 12px;
-  background: linear-gradient(180deg, rgba(201,168,94,.15), transparent);
-  border-radius: 0 0 50% 50%;
-  pointer-events: none;
 }
 .arch-frame::after {
   content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
   background: linear-gradient(90deg, transparent, var(--gold) 30%, var(--gold-pale) 50%, var(--gold) 70%, transparent);
   border-radius: 8px 8px 0 0;
 }
-
-/* Crescent accent for calendar */
-.crescent-accent {
-  display: inline-block; width: 10px; height: 10px;
-  border-radius: 50%; position: relative;
-  box-shadow: inset -3px 0 0 var(--gold);
-  flex-shrink: 0; margin-right: 4px;
-}
-
-/* Low-opacity geometric background texture */
 .geometric-bg {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><g fill='none' stroke='%23B08D4C' stroke-opacity='0.04' stroke-width='1'><path d='M40 5 L50 30 L75 40 L50 50 L40 75 L30 50 L5 40 L30 30 Z'/><rect x='20' y='20' width='40' height='40' transform='rotate(45 40 40)'/><circle cx='40' cy='40' r='20'/></g></svg>");
   background-size: 80px 80px;

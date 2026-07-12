@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Search, Menu, X, Moon, Mail, MessageSquare, MapPin, FileText, BookOpen, Calendar as CalendarIcon, Bell, Info, Download, Home, ChevronRight, ShieldCheck, Lock, Link2, AlertCircle, Sparkles } from "lucide-react";
+import { Search, Menu, X, Moon, Mail, MessageSquare, MapPin, FileText, BookOpen, Calendar as CalendarIcon, Bell, Info, Download, Home, ChevronRight, ShieldCheck, Lock, Link2 } from "lucide-react";
 import WavingFlag from "./WavingFlag";
 import PeacockFeatherCursor from "./PeacockFeatherCursor";
 import PrayerTimes from "./PrayerTimes";
@@ -361,29 +361,46 @@ export default function HomeClient(props: HomeClientProps) {
                 title="Fatwa Archive & Q&A"
                 arabic="فتاوى"
                 sub="Verified Ḥanafī rulings from the Darul Iftā"
+                pageId="fatwas"
               >
                 <FatwaList initial={fatwas} onSubmitQuestion={onSubmitQuestion} onOpenFatwa={f => setActiveFatwa(f)} />
               </FullPage>
             )}
             {page === "articles" && (
-              <FullPage title="Articles & Publications" arabic="مقالات" sub="Islamic guidance, fiqh, and educational content — complete archive">
+              <FullPage title="Articles & Publications" arabic="مقالات" sub="Islamic guidance, fiqh, and educational content — complete archive" pageId="articles">
                 <ArticleGrid initial={articles} onOpenArticle={a => setActiveArticle(a)} />
               </FullPage>
             )}
             {page === "calendar" && (
-              <FullPage title="Islamic Calendar" arabic="التقويم الهجري" sub="Hijri–Gregorian calendar with Sunnah fast days, verified against the Ṣiḥāḥ Sittah">
+              <FullPage title="Islamic Calendar" arabic="التقويم الهجري" sub="Hijri–Gregorian calendar with Sunnah fast days, verified against the Ṣiḥāḥ Sittah" pageId="calendar">
                 <IslamicCalendar />
               </FullPage>
             )}
-            {page === "financials" && <FinancialsView />}
+            {page === "financials" && (
+              <FullPage title="Financial Indicators" arabic="المؤشرات المالية" sub="As at 22 June 2026 · 06 Muḥarram 1448" pageId="financials">
+                <FinancialsView />
+              </FullPage>
+            )}
             {page === "downloads" && (
-              <FullPage title="Resource Library" arabic="مكتبة" sub="PDF booklets, guides, posters and scholarly works">
+              <FullPage title="Resource Library" arabic="مكتبة" sub="PDF booklets, guides, posters and scholarly works" pageId="downloads">
                 <DownloadsGrid initial={downloads} />
               </FullPage>
             )}
-            {page === "announcements" && <AnnouncementsView announcements={announcements} />}
-            {page === "links" && <UsefulLinksView />}
-            {page === "contact" && <ContactView onSubmit={onSubmitContact} />}
+            {page === "announcements" && (
+              <FullPage title="Announcements" arabic="إعلانات" sub="Community notices and moon-sighting confirmations" pageId="announcements">
+                <AnnouncementsView announcements={announcements} />
+              </FullPage>
+            )}
+            {page === "links" && (
+              <FullPage title="Useful Links" arabic="روابط" sub="Affiliated organisations and resources" pageId="links">
+                <UsefulLinksView />
+              </FullPage>
+            )}
+            {page === "contact" && (
+              <FullPage title="Contact Us" arabic="تواصل معنا" sub="Get in touch with the Jamiat" pageId="contact">
+                <ContactView onSubmit={onSubmitContact} />
+              </FullPage>
+            )}
           </motion.div>
         </AnimatePresence>
       </main>
@@ -570,30 +587,7 @@ export default function HomeClient(props: HomeClientProps) {
                 <dt>Account Number</dt>
                 <dd>
                   6321 4722 399
-                  <button className="copy-btn" onClick={async (e) => {
-                    const btn = e.currentTarget;
-                    if (!btn) return;
-                    const text = "63214722399";
-                    let success = false;
-                    try {
-                      if (navigator.clipboard && navigator.clipboard.writeText) {
-                        await navigator.clipboard.writeText(text);
-                        success = true;
-                      } else {
-                        // Fallback for older browsers / insecure contexts
-                        const ta = document.createElement("textarea");
-                        ta.value = text;
-                        ta.style.position = "fixed"; ta.style.opacity = "0";
-                        document.body.appendChild(ta);
-                        ta.select();
-                        success = document.execCommand("copy");
-                        document.body.removeChild(ta);
-                      }
-                    } catch { success = false; }
-                    btn.textContent = success ? "✓ Copied" : "✗ Failed";
-                    btn.classList.add(success ? "copied" : "");
-                    setTimeout(() => { if (btn) { btn.textContent = "Copy"; btn.classList.remove("copied"); } }, 2000);
-                  }}>Copy</button>
+                  <button className="copy-btn" onClick={(e) => { navigator.clipboard?.writeText("63214722399"); const btn = e.currentTarget; if (btn) { btn.textContent = "✓ Copied"; btn.classList.add("copied"); setTimeout(() => { if (btn) { btn.textContent = "Copy"; btn.classList.remove("copied"); } }, 2000); } }}>Copy</button>
                 </dd>
                 <dt>Swift Code</dt>
                 <dd>FIRNZAJJ</dd>
@@ -678,7 +672,7 @@ export default function HomeClient(props: HomeClientProps) {
         onNavigate={navigate}
       />
 
-      {/* WhatsApp popup — auto-appears after 5s, connects immediately */}
+      {/* WhatsApp popup */}
       <WhatsAppPopup />
 
       {/* Toast */}
@@ -699,10 +693,19 @@ export default function HomeClient(props: HomeClientProps) {
 }
 
 /* ─── Page-frame helpers ─── */
-function FullPage({ title, arabic, sub, children }: { title: string; arabic: string; sub: string; children: React.ReactNode }) {
+function FullPage({ title, arabic, sub, children, pageId }: { title: string; arabic: string; sub: string; children: React.ReactNode; pageId?: string }) {
   return (
     <div>
-      <div className="bilingual-title" style={{ marginBottom: 8 }}>
+      {/* Page heading image placeholder — Islamic geometric art */}
+      {pageId && (
+        <ImagePlaceholder
+          mode="pattern"
+          slotId={`page-${pageId}-heading`}
+          ratio="21:9"
+          icon={pageId === "fatwas" ? BookOpen : pageId === "articles" ? FileText : pageId === "calendar" ? CalendarIcon : pageId === "downloads" ? Download : pageId === "financials" ? RandIconAsNav : pageId === "announcements" ? Bell : pageId === "links" ? Link2 : pageId === "contact" ? Mail : Bell}
+        />
+      )}
+      <div className="bilingual-title" style={{ marginBottom: 8, marginTop: pageId ? 14 : 0 }}>
         <span className="ar">{arabic}</span>
         <span className="en">{title}</span>
       </div>
@@ -1042,12 +1045,7 @@ function HomeView({ articles, fatwas, downloads, announcements, dyks, onNavigate
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 14, marginBottom: 22 }}>
           {articles.slice(0, 4).map(a => (
             <div key={a.id} className="scard glow-on-hover clickable" style={{ cursor: "pointer", padding: 0 }} onClick={() => onOpenArticle(a)}>
-              <ImagePlaceholder
-                src={(a as any)?.imageUrl}
-                alt={a.title}
-                slotId={`article-${a.id}-card`}
-                ratio="16:9"
-              />
+              <ImagePlaceholder src={(a as any)?.imageUrl} alt={a.title} slotId={`article-${a.id}-card`} ratio="16:9" />
               <div className="sbody" style={{ padding: "14px 16px" }}>
                 <span className="tag" style={{ marginBottom: 8, display: "inline-block" }}>{a.catLabel}</span>
                 <h4 style={{ fontFamily: "var(--font-serif-stack)", fontSize: ".98rem", fontWeight: 600, color: "var(--forest)", lineHeight: 1.35, marginBottom: 6 }}>
@@ -1144,18 +1142,8 @@ function AnnouncementCard({ announcement }: { announcement: { id: number; title:
   const color = announcement.kind === "moon" ? "var(--teal)" :
                 announcement.kind === "urgent" ? "var(--maroon)" :
                 announcement.kind === "ramadan" ? "var(--forest)" : "var(--gold)";
-  const annIcon = announcement.kind === "moon" ? Moon :
-                  announcement.kind === "urgent" ? AlertCircle :
-                  announcement.kind === "ramadan" ? Sparkles : Bell;
   return (
     <div className="scard" style={{ padding: 0, borderLeft: `4px solid ${color}` }}>
-      {/* Visual placeholder — communicates announcement type at a glance */}
-      <ImagePlaceholder
-        mode="pattern"
-        slotId={`announcement-${announcement.id}-visual`}
-        ratio="21:9"
-        icon={annIcon}
-      />
       <div className="sbody" style={{ padding: "14px 18px" }}>
         <h4 style={{ fontFamily: "var(--font-serif-stack)", fontSize: "1.05rem", fontWeight: 600, color: "var(--forest)", marginBottom: 6 }}>
           {announcement.title}
@@ -1174,21 +1162,21 @@ function AnnouncementCard({ announcement }: { announcement: { id: number; title:
 function FinancialCard({ onNavigate }: { onNavigate: (p: string) => void }) {
   return (
     <div className="scard clickable" style={{ cursor: "pointer", padding: 0 }} onClick={() => onNavigate("financials")}>
-      <div className="shead">
-        <span>Financial Indicators</span>
-        <span className="ar">المؤشرات المالية</span>
+      <div className="shead" style={{ padding: "8px 12px" }}>
+        <span style={{ fontSize: ".75rem" }}>Financial Indicators</span>
+        <span className="ar" style={{ fontSize: ".75rem" }}>المؤشرات المالية</span>
       </div>
-      <div className="sbody">
-        <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "var(--font-sans-stack)", fontSize: ".78rem" }}>
+      <div className="sbody" style={{ padding: "8px 12px" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "var(--font-sans-stack)", fontSize: ".72rem" }}>
           <tbody>
-            <tr style={{ background: "rgba(11,61,46,.06)" }}><td style={{ padding: "5px 6px", color: "var(--ink-mid)" }}><strong>Zakāt Niṣāb</strong></td><td style={{ padding: "5px 6px", textAlign: "right", color: "var(--forest)", fontWeight: 600 }}>R22,136.44</td></tr>
-            <tr><td style={{ padding: "5px 6px", color: "var(--ink-mid)" }}>Mahr Fāṭimī</td><td style={{ padding: "5px 6px", textAlign: "right", color: "var(--forest)" }}>R55,342.04</td></tr>
-            <tr><td style={{ padding: "5px 6px", color: "var(--ink-mid)" }}>Gold 24 kt/g</td><td style={{ padding: "5px 6px", textAlign: "right", color: "var(--forest)" }}>R2,252.68</td></tr>
-            <tr><td style={{ padding: "5px 6px", color: "var(--ink-mid)" }}>Silver/g</td><td style={{ padding: "5px 6px", textAlign: "right", color: "var(--forest)" }}>R36.15</td></tr>
-            <tr><td style={{ padding: "5px 6px", color: "var(--ink-mid)" }}>Fidyah (Ḥanafī)</td><td style={{ padding: "5px 6px", textAlign: "right", color: "var(--forest)" }}>R38.00</td></tr>
+            <tr style={{ background: "rgba(11,61,46,.06)" }}><td style={{ padding: "3px 4px", color: "var(--ink-mid)" }}><strong>Zakāt Niṣāb</strong></td><td style={{ padding: "3px 4px", textAlign: "right", color: "var(--forest)", fontWeight: 600 }}>R22,136</td></tr>
+            <tr><td style={{ padding: "3px 4px", color: "var(--ink-mid)" }}>Mahr Fāṭimī</td><td style={{ padding: "3px 4px", textAlign: "right", color: "var(--forest)" }}>R55,342</td></tr>
+            <tr><td style={{ padding: "3px 4px", color: "var(--ink-mid)" }}>Gold 24kt/g</td><td style={{ padding: "3px 4px", textAlign: "right", color: "var(--forest)" }}>R2,253</td></tr>
+            <tr><td style={{ padding: "3px 4px", color: "var(--ink-mid)" }}>Silver/g</td><td style={{ padding: "3px 4px", textAlign: "right", color: "var(--forest)" }}>R36.15</td></tr>
+            <tr><td style={{ padding: "3px 4px", color: "var(--ink-mid)" }}>Fidyah</td><td style={{ padding: "3px 4px", textAlign: "right", color: "var(--forest)" }}>R38.00</td></tr>
           </tbody>
         </table>
-        <p style={{ marginTop: 10, fontFamily: "var(--font-sans-stack)", fontSize: ".66rem", color: "var(--muted-foreground)", textAlign: "center" }}>
+        <p style={{ marginTop: 6, fontFamily: "var(--font-sans-stack)", fontSize: ".58rem", color: "var(--muted-foreground)", textAlign: "center" }}>
           As at 22 June 2026 · 06 Muḥarram 1448
         </p>
       </div>
@@ -1265,13 +1253,6 @@ function DownloadsCard({ downloads, onNavigate }: { downloads: DownloadItem[]; o
 function FinancialsView() {
   return (
     <div>
-      <div className="bilingual-title" style={{ marginBottom: 8 }}>
-        <span className="ar">المؤشرات المالية</span>
-        <span className="en">Islamic Financial Indicators</span>
-      </div>
-      <p className="bilingual-sub" style={{ marginBottom: 18 }}>
-        Updated values for Zakāh, Mahr, Gold &amp; Krugerrand · As at 22 June 2026
-      </p>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 22 }} className="fin-grid">
         <div className="scard">
           <div className="shead"><span>Zakāh &amp; Mahr Values</span><span className="ar">الزكاة والمهر</span></div>
@@ -1355,13 +1336,6 @@ function FinTable({ rows }: { rows: ({ sec: string } | { l: string; r: string; h
 function AnnouncementsView({ announcements }: { announcements: { id: number; title: string; body: string; date: string; kind: string }[] }) {
   return (
     <div>
-      <div className="bilingual-title" style={{ marginBottom: 8 }}>
-        <span className="ar">إعلانات</span>
-        <span className="en">Announcements</span>
-      </div>
-      <p className="bilingual-sub" style={{ marginBottom: 18 }}>
-        Community notices, moon sightings, and important updates
-      </p>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {announcements.map(a => <AnnouncementCard key={a.id} announcement={a} />)}
       </div>
@@ -1382,12 +1356,6 @@ const USEFUL_LINKS = [
 function UsefulLinksView() {
   return (
     <div>
-      <div className="bilingual-title" style={{ marginBottom: 8 }}>
-        <span className="ar">روابط مفيدة</span>
-        <span className="en">Useful Links</span>
-      </div>
-      <p className="bilingual-sub" style={{ marginBottom: 18 }}>Affiliated organisations and resources</p>
-
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 16 }}>
         {USEFUL_LINKS.map((link, i) => (
           <a
@@ -1466,11 +1434,6 @@ function UsefulLinksView() {
 function ContactView({ onSubmit }: { onSubmit: (e: React.FormEvent<HTMLFormElement>) => void }) {
   return (
     <div>
-      <div className="bilingual-title" style={{ marginBottom: 8 }}>
-        <span className="ar">تواصل معنا</span>
-        <span className="en">Contact Us</span>
-      </div>
-      <p className="bilingual-sub" style={{ marginBottom: 18 }}>Get in touch with the Jamiat</p>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 22 }} className="contact-grid">
         <div className="scard">
           <div className="shead"><span>Office &amp; Postal Address</span><span className="ar">العنوان</span></div>

@@ -68,14 +68,7 @@ export default function DownloadsGrid({ initial }: { initial: DownloadItem[] }) 
         )}
         {filtered.map(d => (
           <div key={d.id} className="scard glow-on-hover" style={{ padding: 0 }}>
-            {/* Cover image — uses pattern placeholder when no coverUrl (Section 4) */}
-            <ImagePlaceholder
-              mode="photo"
-              src={d.coverUrl}
-              alt={d.title}
-              slotId={`download-${d.id}-cover`}
-              ratio="4:3"
-            />
+            <ImagePlaceholder mode="photo" src={d.coverUrl} alt={d.title} slotId={`download-${d.id}-cover`} ratio="4:3" />
             <div className="sbody" style={{ padding: "16px 18px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                 <span className="tag">{d.catLabel}</span>

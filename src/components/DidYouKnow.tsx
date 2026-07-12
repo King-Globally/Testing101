@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import ImagePlaceholder from "./ImagePlaceholder";
 
 interface Dyk { id: number; text: string; }
 
@@ -17,6 +18,13 @@ export default function DidYouKnow({ initial }: { initial: Dyk[] }) {
 
   return (
     <div className="scard arch-frame">
+      {/* Visual placeholder — Sparkles icon, Islamic geometric pattern */}
+      <ImagePlaceholder
+        mode="pattern"
+        slotId={`dyk-${cur.id}`}
+        ratio="21:9"
+        icon={Sparkles}
+      />
       <div className="shead">
         <span>Did You Know</span>
         <span className="ar">هل تعلم</span>

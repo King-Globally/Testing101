@@ -64,13 +64,7 @@ export default function FatwaList({ initial, onSubmitQuestion, onOpenFatwa }: { 
             <div key={f.id} className="scard glow-on-hover" style={{ cursor: "pointer" }} onClick={() => handleFatwaClick(f)}>
               <div className="sbody" style={{ padding: "14px 16px" }}>
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-                  {/* Category icon (Section 4: "Small category icon" for Q&A) */}
-                  <ImagePlaceholder
-                    mode="icon"
-                    icon={CATEGORY_ICONS[f.cat] || HelpCircle}
-                    slotId={`fatwa-${f.id}-cat-icon`}
-                    iconSize={20}
-                  />
+                  <ImagePlaceholder mode="icon" icon={CATEGORY_ICONS[f.cat] || HelpCircle} slotId={`fatwa-${f.id}-cat-icon`} iconSize={20} />
                   <div style={{ flex: 1 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
                       <span className="tag" style={{ background: "rgba(184,146,30,.18)", color: "var(--forest)" }}>{f.cat}</span>

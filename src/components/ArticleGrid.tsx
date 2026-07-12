@@ -52,13 +52,7 @@ export default function ArticleGrid({ initial, onOpenArticle }: { initial: Artic
         {filtered.length === 0 && <p style={{ gridColumn: "1 / -1", textAlign: "center", color: "var(--muted-foreground)", padding: 32, fontFamily: "var(--font-sans-stack)", fontSize: ".9rem" }}>No articles match your search. Try a different keyword.</p>}
         {filtered.map(a => (
           <div key={a.id} className="scard glow-on-hover clickable" style={{ cursor: "pointer", padding: 0 }} onClick={() => onOpenArticle(a)}>
-            <ImagePlaceholder
-              mode="photo"
-              src={a.imageUrl}
-              alt={a.title}
-              slotId={`article-${a.id}-grid`}
-              ratio="16:9"
-            />
+            <ImagePlaceholder mode="photo" src={a.imageUrl} alt={a.title} slotId={`article-${a.id}-grid`} ratio="16:9" />
             <div className="sbody" style={{ padding: "16px 18px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                 <span className="tag">{a.catLabel}</span>

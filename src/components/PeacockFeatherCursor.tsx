@@ -1,156 +1,72 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-
-/**
- * PeacockFeatherCursor — custom cursor that NEVER disappears during normal use.
- *
- * The cursor stays visible at all times when a mouse/trackpad is active.
- * It only hides when:
- *   - The page tab is hidden (user switched tabs)
- *   - The mouse leaves the browser window entirely
- *
- * It does NOT have an idle timeout — the cursor stays visible even when
- * the user stops moving. This prevents the "disappearing cursor" bug.
- */
+import { useEffect, useRef } from "react";
 
 export default function PeacockFeatherCursor() {
   const cursorRef = useRef<HTMLDivElement>(null);
   const trailLayerRef = useRef<HTMLDivElement>(null);
-  const [shouldRender, setShouldRender] = useState(false);
 
   useEffect(() => {
-    const finePointerMQ = window.matchMedia("(pointer: fine)");
-    const hoverMQ = window.matchMedia("(hover: hover)");
-    const reducedMotionMQ = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (window.matchMedia("(pointer: coarse)").matches) return;
+    const cursor = cursorRef.current;
+    const trailLayer = trailLayerRef.current;
+    if (!cursor || !trailLayer) return;
 
-    const hasFinePointer = finePointerMQ.matches;
-    const supportsHover = hoverMQ.matches;
-    const isCapable = hasFinePointer && supportsHover;
+    document.documentElement.classList.add("peacock-active");
 
-    if (!isCapable) {
-      setShouldRender(false);
-      return;
-    }
+    let lastTrail = 0;
 
-    setShouldRender(true);
-
-    const initTimer = setTimeout(() => {
-      const cursor = cursorRef.current;
-      const trailLayer = trailLayerRef.current;
-      if (!cursor || !trailLayer) return;
-
-      document.documentElement.classList.add("peacock-active");
-
-      let lastTrail = 0;
-      let rafId: number | null = null;
-      let pendingX = 0;
-      let pendingY = 0;
-      let trailDotCount = 0;
-      const reducedMotion = reducedMotionMQ.matches;
-
-      const updatePosition = () => {
-        rafId = null;
-        cursor.style.transform = `translate(${pendingX}px, ${pendingY}px) translate(-50%, -50%)`;
-      };
-
-      const createTrailDot = (x: number, y: number) => {
-        if (reducedMotion) return;
-        if (trailDotCount >= 15) return;
-        const now = performance.now();
-        if (now - lastTrail < 30) return;
+    const onMove = (e: MouseEvent) => {
+      cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+      const now = performance.now();
+      if (now - lastTrail > 30) {
         lastTrail = now;
         const dot = document.createElement("div");
         dot.className = "peacock-ink-trail";
-        dot.style.left = `${x}px`;
-        dot.style.top = `${y}px`;
+        dot.style.left = `${e.clientX}px`;
+        dot.style.top = `${e.clientY}px`;
         trailLayer.appendChild(dot);
-        trailDotCount++;
-        setTimeout(() => {
-          dot.remove();
-          trailDotCount = Math.max(0, trailDotCount - 1);
-        }, 500);
-      };
+        setTimeout(() => dot.remove(), 500);
+      }
+    };
 
-      const onMouseMove = (e: MouseEvent) => {
-        pendingX = e.clientX;
-        pendingY = e.clientY;
-        if (rafId === null) {
-          rafId = requestAnimationFrame(updatePosition);
-        }
-        createTrailDot(e.clientX, e.clientY);
-        // Always keep cursor visible on mouse move
-        cursor.style.opacity = "1";
-      };
-
-      const onMouseOver = (e: MouseEvent) => {
-        const t = e.target as HTMLElement;
-        if (!t || !t.closest) return;
-        if (t.closest("a, button, [role='button'], .clickable, input, textarea, select, .cal-cell, .chip, [data-slot]")) {
-          cursor.classList.add("over-link");
-        }
-      };
-
-      const onMouseOut = (e: MouseEvent) => {
-        const t = e.target as HTMLElement;
-        if (!t || !t.closest) return;
-        if (t.closest("a, button, [role='button'], .clickable, input, textarea, select, .cal-cell, .chip, [data-slot]")) {
-          cursor.classList.remove("over-link");
-        }
-      };
-
-      // Only hide when mouse leaves the window entirely
-      const onMouseLeave = () => {
-        cursor.style.opacity = "0";
+    const onOver = (e: MouseEvent) => {
+      const t = e.target as HTMLElement;
+      if (!t) return;
+      if (t.closest("a, button, [role='button'], .clickable, input, textarea, select, .cal-cell, .chip")) {
+        cursor.classList.add("over-link");
+      }
+    };
+    const onOut = (e: MouseEvent) => {
+      const t = e.target as HTMLElement;
+      if (!t) return;
+      if (t.closest("a, button, [role='button'], .clickable, input, textarea, select, .cal-cell, .chip")) {
         cursor.classList.remove("over-link");
-      };
+      }
+    };
 
-      const onMouseEnter = () => {
-        cursor.style.opacity = "1";
-      };
+    const onVisibility = () => {
+      if (document.hidden) cursor.style.opacity = "0";
+      else cursor.style.opacity = "1";
+    };
 
-      // Only hide when tab is switched
-      const onVisibilityChange = () => {
-        if (document.hidden) {
-          cursor.style.opacity = "0";
-          cursor.classList.remove("over-link");
-        } else {
-          cursor.style.opacity = "1";
-        }
-      };
-
-      window.addEventListener("mousemove", onMouseMove, { passive: true });
-      window.addEventListener("mouseover", onMouseOver, { passive: true });
-      window.addEventListener("mouseout", onMouseOut, { passive: true });
-      document.documentElement.addEventListener("mouseleave", onMouseLeave);
-      document.documentElement.addEventListener("mouseenter", onMouseEnter);
-      document.addEventListener("visibilitychange", onVisibilityChange);
-
-      return () => {
-        window.removeEventListener("mousemove", onMouseMove);
-        window.removeEventListener("mouseover", onMouseOver);
-        window.removeEventListener("mouseout", onMouseOut);
-        document.documentElement.removeEventListener("mouseleave", onMouseLeave);
-        document.documentElement.removeEventListener("mouseenter", onMouseEnter);
-        document.removeEventListener("visibilitychange", onVisibilityChange);
-        if (rafId !== null) cancelAnimationFrame(rafId);
-        trailLayer.innerHTML = "";
-        trailDotCount = 0;
-        document.documentElement.classList.remove("peacock-active");
-      };
-    }, 50);
+    window.addEventListener("mousemove", onMove, { passive: true });
+    window.addEventListener("mouseover", onOver, { passive: true });
+    window.addEventListener("mouseout", onOut, { passive: true });
+    document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
-      clearTimeout(initTimer);
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseover", onOver);
+      window.removeEventListener("mouseout", onOut);
+      document.removeEventListener("visibilitychange", onVisibility);
       document.documentElement.classList.remove("peacock-active");
     };
   }, []);
 
-  if (!shouldRender) return null;
-
   return (
     <>
       <div ref={trailLayerRef} aria-hidden="true" style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 99997 }} />
-      <div ref={cursorRef} className="peacock-cursor" aria-hidden="true" style={{ opacity: 0 }}>
+      <div ref={cursorRef} className="peacock-cursor" aria-hidden="true">
         <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <radialGradient id="peye" cx="50%" cy="50%" r="50%">

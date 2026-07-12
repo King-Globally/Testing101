@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Moon, Sunrise, Clock, Calendar, Telescope, MapPin, Sparkles } from "lucide-react";
+import ImagePlaceholder from "./ImagePlaceholder";
 
 interface MoonSightingData {
   success: boolean;
@@ -135,6 +136,13 @@ function MonthEndingCard({ data, showAstronomicalData }: { data: MoonSightingDat
       background: "#F5EFE0",
     }}>
       {/* ── Header bar — gradient with Arabic calligraphy accent ── */}
+      {/* Moon-sighting visual placeholder — crescent moon icon, Islamic geometric pattern */}
+      <ImagePlaceholder
+        mode="pattern"
+        slotId={`moon-sighting-${moon.currentHijriMonth}-${moon.currentHijriDay}`}
+        ratio="21:9"
+        icon={Moon}
+      />
       <div style={{
         background: "linear-gradient(135deg, #1B2A38 0%, #2E6E6A 60%, #1B2A38 100%)",
         padding: "16px 20px 14px",

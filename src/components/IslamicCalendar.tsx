@@ -308,7 +308,7 @@ export default function IslamicCalendar({ variant = "full" }: { variant?: "full"
               {todayHijri ? todayHijri.formattedArabic : "—"}
             </div>
             <div style={{ fontFamily: "var(--font-sans-stack)", fontSize: ".62rem", color: "#5A5750", marginTop: 2 }}>
-              {todayHijri ? todayHijri.formattedLatin : "—"}
+              {todayHijri ? todayHijri.formattedLatin : "Loading…"}
             </div>
           </div>
         </div>
@@ -424,7 +424,7 @@ export default function IslamicCalendar({ variant = "full" }: { variant?: "full"
               fontFamily: "var(--font-serif-stack)", fontSize: ".85rem",
               color: "rgba(241,233,216,.6)", marginTop: 4,
             }}>
-              {todayHijri ? todayHijri.formattedLatin : "—"}
+              {todayHijri ? todayHijri.formattedLatin : "Loading…"}
             </div>
             <div style={{
               fontFamily: "var(--font-sans-stack)", fontSize: ".68rem",

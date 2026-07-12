@@ -1,9 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 import { usePrayerSchedule, useNextPrayer, type PrayerSlot } from "@/lib/prayer";
+import ImagePlaceholder from "./ImagePlaceholder";
+import { Clock } from "lucide-react";
 
 /**
  * PrayerTimes — world-class sidebar prayer dashboard.
+ * - Masjid identifier photo placeholder at top
  * - Premium dark header with masjid name
  * - Live countdown card with next prayer highlighted
  * - 6 prayer slots in elegant grid with Azaan + Jama'ah times
@@ -27,6 +30,14 @@ export default function PrayerTimes() {
 
   return (
     <div style={{ overflow: "hidden", borderRadius: 4, border: "1px solid rgba(176,141,76,.15)" }}>
+      {/* ─── Masjid identifier photo placeholder ─── */}
+      <ImagePlaceholder
+        mode="pattern"
+        slotId="prayer-times-masjid"
+        ratio="21:9"
+        icon={Clock}
+        rounded={false}
+      />
       {/* ─── Premium header ─── */}
       <div style={{
         background: "linear-gradient(135deg, #1B2A38 0%, #243845 100%)",

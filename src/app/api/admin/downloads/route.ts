@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireEditor } from "@/lib/auth";
 import { audit, snapshot } from "@/lib/audit";
+import { detectAndAnnounceChange } from "@/lib/update-detector";
 import { z } from "zod";
 
 const DownloadSchema = z.object({
@@ -27,6 +28,7 @@ export async function POST(req: NextRequest) {
   const parsed = DownloadSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Validation failed", details: parsed.error.flatten() }, { status: 400 });
   const created = await db.download.create({ data: parsed.data });
+  await detectAndAnnounceChange({ entityType: "download", action: "create", entityId: created.id, entityTitle: created.title });
   await audit({ session, action: "create", entity: "download", entityId: created.id, after: snapshot(created), req: req as unknown as Request });
   return NextResponse.json({ item: created });
 }
