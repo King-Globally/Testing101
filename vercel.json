@@ -5,7 +5,7 @@
     "iad1"
   ],
   "env": {
-    "DATABASE_URL": "file:./db/custom.db",
+    "DATABASE_URL": "@database-url",
     "NEXTAUTH_SECRET": "@nextauth-secret",
     "NEXTAUTH_URL": "@nextauth-url",
     "NEXTAUTH_TRUST_HOST": "true"

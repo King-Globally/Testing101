@@ -1,12 +1,12 @@
 // Prisma schema — Jamiatul Ulama Johannesburg mini-database
-// SQLite (file-based) for articles, fatwas, downloads, calendar, prayer times.
+// PostgreSQL (Neon.tech serverless) for articles, fatwas, downloads, calendar, prayer times.
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
