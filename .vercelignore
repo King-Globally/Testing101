@@ -1,0 +1,50 @@
+# ─── Build artifacts & caches ────────────────────────────────────────────────
+.next/
+.cache/
+.tsbuildinfo
+tsconfig.tsbuildinfo
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ─── Local databases (Neon Postgres is used in production) ───────────────────
+db/
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# ─── Development / one-off scripts (NOT needed at runtime) ───────────────────
+scripts/
+examples/
+mini-services/
+.zscripts/
+
+# ─── Local screenshots, zips, and download artifacts ─────────────────────────
+download/
+tool-results/
+upload/
+skills/
+
+# ─── Internal documentation not served by the site ───────────────────────────
+DEVELOPER_GUIDE.md
+Caddyfile
+
+# ─── Build zip artifacts (large, not served by the site) ─────────────────────
+public/jamiat-website.zip
+public/jamiat-joburg-vercel-deploy.zip
+public/*.zip
+
+# ─── Environment files (Vercel dashboard handles env vars) ───────────────────
+.env
+.env.*
+!.env.example
+
+# ─── Editor / OS noise ───────────────────────────────────────────────────────
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+Thumbs.db
